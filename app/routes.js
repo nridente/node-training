@@ -1,7 +1,7 @@
-// const controller = require('./controllers/controller');
+const userController = require('./controllers/userController');
 
 exports.init = app => {
-  // app.get('/endpoint/get/path', [], controller.methodGET);
-  // app.put('/endpoint/put/path', [], controller.methodPUT);
-  // app.post('/endpoint/post/path', [], controller.methodPOST);
+  app.get('/users/:email', [], userController.getUser);
+  app.get('/users', [], userController.getAllUsers);
+  app.post('/users', [], userController.setUser);
 };
