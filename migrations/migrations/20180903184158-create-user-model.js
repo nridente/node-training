@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, DataType) =>
-    queryInterface.createTable('User', {
+    queryInterface.createTable("User", {
       id: {
         primaryKey: true,
         type: DataType.INTEGER,
@@ -10,8 +10,14 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      name: DataType.STRING,
-      last_name: DataType.STRING,
+      name: {
+        type: DataType.STRING,
+        allowNull: false
+      },
+      last_name: {
+        type: DataType.STRING,
+        allowNull: false
+      },
       email: {
         type: DataType.STRING,
         allowNull: false,
@@ -30,5 +36,5 @@ module.exports = {
         type: DataType.DATE
       }
     }),
-  down: (queryInterface, DataType) => queryInterface.dropTable('User')
+  down: (queryInterface, DataType) => queryInterface.dropTable("User")
 };
