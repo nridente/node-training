@@ -9,8 +9,14 @@ module.exports = function(sequelize, DataType) {
 	  	allowNull: false,
 	  	unique: true
 	  },
-	  name: DataType.STRING,
-	  last_name: DataType.STRING,
+	  name: {
+      type: DataType.STRING,
+      allowNull: false
+    },
+	  last_name: {
+      type: DataType.STRING,
+      allowNull: false
+    },
 	  email: { 
 	  	type: DataType.STRING, 
 	  	allowNull: false,
