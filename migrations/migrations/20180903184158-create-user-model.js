@@ -10,8 +10,14 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      name: DataType.STRING,
-      last_name: DataType.STRING,
+      name: {
+        type: DataType.STRING,
+        allowNull: false
+      },
+      last_name: {
+        type: DataType.STRING,
+        allowNull: false
+      },
       email: {
         type: DataType.STRING,
         allowNull: false,
@@ -21,11 +27,11 @@ module.exports = {
         type: DataType.STRING,
         allowNull: false
       },
-      created_at: {
+      createdAt: {
         allowNull: false,
         type: DataType.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: DataType.DATE
       }
