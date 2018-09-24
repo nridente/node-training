@@ -24,7 +24,7 @@ describe('UserModule', () => {
       password: 'password'
     };
 
-  it.skip('test create user when success', done => {
+  it('test create user when success', done => {
     chai
       .request(host)
       .post(endpoint)
@@ -33,14 +33,11 @@ describe('UserModule', () => {
       .end((err, res) => {
         expect(res.status).to.be.equal(200);
         expect(res.text).to.be.equal('user Lord Valdomero created.');
-        User.count().then(counted => {
-          expect(counted).to.be.equal(1);
-        });
         done();
       });
   });
 
-  it.skip('test create user when email is in use', done => {
+  it('test create user when email is in use', done => {
     setNewUser(userData);
     chai
       .request(host)
@@ -55,7 +52,7 @@ describe('UserModule', () => {
       });
   });
 
-  it.skip('test create user when the password does not feed the requeriments', done => {
+  it('test create user when the password does not feed the requeriments', done => {
     userData.password = 'only5';
     chai
       .request(host)
@@ -70,7 +67,7 @@ describe('UserModule', () => {
       });
   });
 
-  it.skip('test create function when email domain is not the valid one', done => {
+  it('test create function when email domain is not the valid one', done => {
     userData.email = 'valdomerus@lord.com';
     chai
       .request(host)
@@ -93,8 +90,9 @@ describe('UserModule', () => {
       .set(headers)
       .send(userData)
       .end((err, res) => {
-        expect(res).to.have.status(500);
-        logger.info(JSON.stringify(res));
+        expect(res).to.have.status(400);
+        expect(res.body.internal_code).to.be.equal('invalid_requested_params');
+        expect(res.body.message).to.be.equal('there were not send all required attributes.');
         done();
       });
   });
