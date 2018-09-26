@@ -12,7 +12,8 @@ const statusCodes = {
   [errors.DEFAULT_ERROR]: 500,
   [errors.INVALID_DOMAIN_EMAIL]: 400,
   [errors.INVALID_PASSWORD_LENGTH]: 400,
-  [errors.INVALID_REQUESTED_PARAMS]: 400
+  [errors.INVALID_REQUESTED_PARAMS]: 400,
+  [errors.AUTHENTICATION_ERROR]: 401
 };
 
 exports.handle = (error, req, res, next) => {

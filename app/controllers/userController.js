@@ -5,6 +5,7 @@ const models = require('../models'),
   logger = require('../logger'),
   md5 = require('md5'),
   User = models.User,
+  jwtService = require('../services/jwt'),
   userHelper = require('./helpers/userHelper');
 
 exports.getAllUsers = (req, res, next) => {
@@ -40,4 +41,22 @@ exports.setUser = (req, res, next) => {
         next(err);
       });
   });
+};
+
+exports.signIn = (req, res, next) => {
+  const body = req.body;
+  userHelper.validateValidDomainEmail(body, next);
+  User.count({ where: { email: body.email, password: md5(body.password) } })
+    .then(user => {
+      if (user) {
+        return res.send({ token: jwtService.createToken(user) });
+      } else {
+        logger.info(`either email or password are wrong.`);
+        next(error.authenticationError(`either email or password are wrong.`));
+      }
+    })
+    .catch(err => {
+      logger.info(err);
+      next(err);
+    });
 };

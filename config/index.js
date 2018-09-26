@@ -1,4 +1,5 @@
 const ENVIRONMENT = process.env.NODE_ENV || 'development';
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'tokenultrasecreto';
 
 if (ENVIRONMENT !== 'production') {
   require('dotenv').config();
@@ -48,6 +49,9 @@ const config = {
     rollbar: {
       accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
       environment: process.env.ROLLBAR_ENV
+    },
+    jwt: {
+      secret_token: TOKEN_SECRET
     }
   }
 };
