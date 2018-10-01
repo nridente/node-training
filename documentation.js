@@ -1,7 +1,7 @@
 const dictum = require('dictum.js');
 
 dictum.document({
-  description: 'Some description for the given endpoint',
+  description: 'POST - Create an user',
   endpoint: '/users',
   method: 'POST',
   requestHeaders: { 'Content-Type': 'application/json' },
@@ -10,8 +10,8 @@ dictum.document({
   },
   requestBodyParams: {
     email: 'email@wolox.com.ar',
-    name: 'Valdomero',
-    last_name: 'Lord',
+    name: 'fist name',
+    last_name: 'last name',
     password: 'password'
   },
   responseStatus: 200,

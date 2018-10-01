@@ -48,6 +48,7 @@ exports.signIn = (req, res, next) => {
   userHelper.validateValidDomainEmail(body, next);
   User.count({ where: { email: body.email, password: md5(body.password) } })
     .then(user => {
+      logger.info(user);
       if (user) {
         return res.send({ token: jwtService.createToken(user) });
       } else {

@@ -4,36 +4,45 @@ const chai = require('chai'),
   chaiHttp = require('chai-http'),
   expect = chai.expect,
   logger = require('../app/logger'),
+  md5 = require('md5'),
   models = require('../app/models');
 
 const User = models.User;
 chai.use(chaiHttp);
 
 const setNewUser = userData => {
+  userData.password = md5('password');
   User.create(userData);
 };
 
 describe('UserModule', () => {
   const host = 'http://localhost:8080',
     userEndpoint = '/users',
-    loginEndpoint = `${userEndpoint}/sessions`,
-    headers = { 'Content-Type': 'application/json' },
+    loginEndpoint = `${userEndpoint}/sessions`;
+  let header = '',
+    userData = '',
+    loginData = '';
+
+  beforeEach('re-estructure data for every test', done => {
+    header = { 'Content-Type': 'application/json' };
     userData = {
-      email: 'email_wrong@wolox.com.ar',
+      email: 'email@wolox.com.ar',
       name: 'Valdomero',
       last_name: 'Lord',
       password: 'password'
-    },
+    };
     loginData = {
       email: 'email@wolox.com.ar',
       password: 'password'
     };
+    done();
+  });
 
   it('test create user when success', done => {
     chai
       .request(host)
       .post(userEndpoint)
-      .set(headers)
+      .set(header)
       .send(userData)
       .end((err, res) => {
         expect(res.status).to.be.equal(200);
@@ -47,7 +56,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(userEndpoint)
-      .set(headers)
+      .set(header)
       .send(userData)
       .end((err, res) => {
         expect(res).to.have.status(400);
@@ -62,7 +71,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(userEndpoint)
-      .set(headers)
+      .set(header)
       .send(userData)
       .end((err, res) => {
         expect(res).to.have.status(400);
@@ -77,7 +86,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(userEndpoint)
-      .set(headers)
+      .set(header)
       .send(userData)
       .end((err, res) => {
         expect(res).to.have.status(400);
@@ -92,7 +101,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(userEndpoint)
-      .set(headers)
+      .set(header)
       .send(userData)
       .end((err, res) => {
         expect(res).to.have.status(400);
@@ -103,10 +112,11 @@ describe('UserModule', () => {
   });
 
   it('test sign in when success', done => {
+    setNewUser(userData);
     chai
       .request(host)
       .post(loginEndpoint)
-      .set(headers)
+      .set(header)
       .send(loginData)
       .end((err, res) => {
         expect(res).to.have.status(200);
@@ -120,7 +130,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(loginEndpoint)
-      .set(headers)
+      .set(header)
       .send(loginData)
       .end((err, res) => {
         expect(res).to.have.status(401);
@@ -136,7 +146,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(loginEndpoint)
-      .set(headers)
+      .set(header)
       .send(loginData)
       .end((err, res) => {
         expect(res).to.have.status(401);
@@ -152,7 +162,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(loginEndpoint)
-      .set(headers)
+      .set(header)
       .send(loginData)
       .end((err, res) => {
         expect(res).to.have.status(401);
@@ -167,7 +177,7 @@ describe('UserModule', () => {
     chai
       .request(host)
       .post(loginEndpoint)
-      .set(headers)
+      .set(header)
       .send(loginData)
       .end((err, res) => {
         expect(res).to.have.status(400);
