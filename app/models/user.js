@@ -27,6 +27,10 @@ module.exports = function(sequelize, DataType) {
       password: {
         type: DataType.STRING,
         allowNull: false
+      },
+      admin: {
+        type: DataType.BOOLEAN,
+        default: 0
       }
     },
     {
