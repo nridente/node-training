@@ -1,4 +1,5 @@
 const userController = require('./controllers/userController'),
+  adminController = require('./controllers/adminController'),
   logger = require('./logger'),
   error = require('./errors');
 
@@ -13,7 +14,10 @@ const _isAuthenticated = (req, res, next) => {
 };
 
 exports.init = app => {
+  // commom users endpoints
   app.get('/users/page/:page', [_isAuthenticated], userController.getAllUsers);
   app.post('/users', [], userController.setUser);
   app.post('/users/sessions', [], userController.signIn);
+  // admin users endpoints
+  app.post('/admin/users', [_isAuthenticated], adminController.setAdmin);
 };

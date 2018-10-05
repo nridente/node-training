@@ -1,6 +1,6 @@
 'use strict';
 
-const commonAttrs = ['id', 'freezeTableName', 'createdAt', 'updatedAt'];
+const commonAttrs = ['id', 'freezeTableName', 'createdAt', 'updatedAt', 'admin'];
 
 exports.requiredAttributes = (model, bodyParams) => {
   const params = Object.keys(bodyParams);
