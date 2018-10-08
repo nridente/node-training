@@ -1,5 +1,6 @@
 const userController = require('./controllers/userController'),
   adminController = require('./controllers/adminController'),
+  albumController = require('./controllers/albumController'),
   logger = require('./logger'),
   error = require('./errors');
 
@@ -20,4 +21,6 @@ exports.init = app => {
   app.post('/users/sessions', [], userController.signIn);
   // admin users endpoints
   app.post('/admin/users', [_isAuthenticated], adminController.setAdmin);
+  // album endpoints
+  app.get('/albums', [_isAuthenticated], albumController.listAlbums);
 };
