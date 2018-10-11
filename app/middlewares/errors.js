@@ -13,7 +13,9 @@ const statusCodes = {
   [errors.INVALID_DOMAIN_EMAIL]: 400,
   [errors.INVALID_PASSWORD_LENGTH]: 400,
   [errors.INVALID_REQUESTED_PARAMS]: 400,
-  [errors.AUTHENTICATION_ERROR]: 401
+  [errors.AUTHENTICATION_ERROR]: 401,
+  [errors.ALBUM_ALREADY_PURSHASED]: 400,
+  [errors.ALBUM_NOT_FOUND]: 404
 };
 
 exports.handle = (error, req, res, next) => {

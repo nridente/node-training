@@ -23,4 +23,5 @@ exports.init = app => {
   app.post('/admin/users', [_isAuthenticated], adminController.setAdmin);
   // album endpoints
   app.get('/albums', [_isAuthenticated], albumController.listAlbums);
+  app.post('/albums/:album_id', [_isAuthenticated], albumController.buyAlbum);
 };
