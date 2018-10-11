@@ -48,7 +48,7 @@ describe('AlbumModule', () => {
       title: 'quidem molestiae enim'
     };
 
-  it.skip('test list all albums when success with mocked service response', done => {
+  it('test list all albums when success with mocked service response', done => {
     const mockedService = sinon.stub(albumService, 'getAllAlbums').resolves(expectedResponseForList);
     chai
       .request(server)
@@ -64,7 +64,7 @@ describe('AlbumModule', () => {
       });
   });
 
-  it.skip('test list all albums when user is not authenticated', done => {
+  it('test list all albums when user is not authenticated', done => {
     chai
       .request(server)
       .get(ListAlbumEndpoint)
@@ -96,7 +96,7 @@ describe('AlbumModule', () => {
       });
   });
 
-  it.skip('test buy an album with a mocked empty response', done => {
+  it('test buy an album with a mocked empty response', done => {
     const mockedService = sinon.stub(albumService, 'getAlbum').resolves([]);
     chai
       .request(server)
@@ -112,7 +112,7 @@ describe('AlbumModule', () => {
       });
   });
 
-  it.skip('test buy an album and the user already purshased it', done => {
+  it('test buy an album and the user already purshased it', done => {
     _insertAlbumPerUser();
     chai
       .request(server)
@@ -128,7 +128,7 @@ describe('AlbumModule', () => {
       });
   });
 
-  it.skip('test buy album when user is not authenticated', done => {
+  it('test buy album when user is not authenticated', done => {
     chai
       .request(server)
       .post(getAlbumEndpoint)
