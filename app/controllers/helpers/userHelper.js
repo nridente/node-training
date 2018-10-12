@@ -45,3 +45,24 @@ exports.signUpValidations = (User, body, next) => {
   }
   return validateError;
 };
+
+exports.isAdmin = (userId, User) => {
+  return new Promise((resolve, reject) => {
+    User.findOne({ where: { id: userId } })
+      .then(user => {
+        resolve(user.admin);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+};
+
+exports.validateAuthMethodsForListAlbums = (admin, subId, requestedId) => {
+  let ret = false;
+  if (admin) ret = true;
+  else {
+    if (subId === requestedId) ret = true;
+  }
+  return ret;
+};

@@ -5,6 +5,7 @@ const models = require('../models'),
   logger = require('../logger'),
   md5 = require('md5'),
   User = models.User,
+  AlbumsPerUser = models.Album_User,
   jwtService = require('../services/jwt'),
   userHelper = require('./helpers/userHelper');
 
@@ -64,7 +65,7 @@ exports.setUser = (req, res, next) => {
 exports.signIn = (req, res, next) => {
   const body = req.body;
   if (!userHelper.validateValidDomainEmail(body, next)) {
-    User.count({ where: { email: body.email, password: md5(body.password) } })
+    User.findOne({ where: { email: body.email, password: md5(body.password) } })
       .then(user => {
         if (user) {
           logger.info(`user ${body.email} signed in successfull.`);
@@ -79,4 +80,30 @@ exports.signIn = (req, res, next) => {
         next(err);
       });
   }
+};
+
+exports.getUserAlbums = (req, res, next) => {
+  userHelper
+    .isAdmin(req.decodedToken.sub, User)
+    .then(admin => {
+      if (userHelper.validateAuthMethodsForListAlbums(admin, req.decodedToken.sub, req.params.user_id)) {
+        AlbumsPerUser.findAll({ where: { user_id: req.params.user_id } })
+          .then(response => {
+            return res.send({ albums: response });
+          })
+          .catch(err => {
+            logger.error(err);
+            return next(err);
+          });
+      } else {
+        logger.info(`the authenticated user is not an admin and not the same as the request.`);
+        next(
+          error.authenticationError(`the authenticated user is not an admin and not the same as the request.`)
+        );
+      }
+    })
+    .catch(err => {
+      logger.error(err);
+      next(err);
+    });
 };

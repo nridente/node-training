@@ -4,12 +4,15 @@ const chai = require('chai'),
   chaiHttp = require('chai-http'),
   expect = chai.expect,
   dictum = require('dictum.js'),
+  sinon = require('sinon'),
   logger = require('../app/logger'),
   md5 = require('md5'),
   models = require('../app/models'),
-  server = require('../app.js');
+  server = require('../app.js'),
+  userHelper = require('../app/controllers/helpers/userHelper.js');
 
-const User = models.User;
+const User = models.User,
+  AlbumsPerUser = models.Album_User;
 chai.use(chaiHttp);
 
 const setNewUser = userData => {
@@ -19,8 +22,25 @@ const setNewUser = userData => {
 
 describe('UserModule', () => {
   const userEndpoint = '/users',
+    userId = 1,
     loginEndpoint = `${userEndpoint}/sessions`,
-    listUsersEndpoint = `${userEndpoint}/page/`;
+    listUsersEndpoint = `${userEndpoint}/page/`,
+    fakeAlbumsResponse = [
+      {
+        id: 1,
+        user_id: 1,
+        album_id: 1,
+        createdAt: '2018-10-11T19:27:40.490Z',
+        updatedAt: '2018-10-11T19:27:40.490Z'
+      },
+      {
+        id: 2,
+        user_id: 1,
+        album_id: 2,
+        createdAt: '2018-10-11T19:27:46.122Z',
+        updatedAt: '2018-10-11T19:27:46.122Z'
+      }
+    ];
   let unAuthHeader = '',
     authHeader = '',
     userData = '',
@@ -31,7 +51,8 @@ describe('UserModule', () => {
     unAuthHeader = { 'Content-Type': 'application/json' };
     authHeader = {
       'Content-Type': 'application/json',
-      'X-Access-Token': 'xample-token'
+      'X-Access-Token':
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU'
     };
     userData = {
       email: 'email@wolox.com.ar',
@@ -251,6 +272,109 @@ describe('UserModule', () => {
         expect(err.response.error).to.have.status(401);
         expect(res.internal_code).to.be.equal('authentication_error');
         expect(res.message).to.be.equal(`user not authenticated`);
+        done();
+      });
+  });
+
+  it('test list all user albums when user is not admin but is the authenticated with a mocked response', done => {
+    const mockedIsAdmin = sinon.stub(userHelper, 'isAdmin').resolves(false),
+      mockedValidations = sinon.stub(userHelper, 'validateAuthMethodsForListAlbums').returns(true),
+      mockedAlbums = sinon.stub(AlbumsPerUser, 'findAll').resolves(fakeAlbumsResponse);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/1/albums`)
+      .set(authHeader)
+      .then(res => {
+        expect(res.status).to.be.equal(200);
+        expect(mockedIsAdmin.calledOnce).to.be.true;
+        expect(mockedValidations.calledOnce).to.be.true;
+        expect(mockedAlbums.calledOnce).to.be.true;
+        expect(typeof res.body).to.be.equal('object');
+        expect(res.body.albums.length).to.not.be.equal(0);
+        dictum.chai(res, 'list all user albums endpoint');
+        mockedIsAdmin.restore();
+        mockedValidations.restore();
+        mockedAlbums.restore();
+        done();
+      });
+  });
+
+  it('test list all user albums when user is admin but is the authenticated with a mocked response', done => {
+    const mockedIsAdmin = sinon.stub(userHelper, 'isAdmin').resolves(true),
+      mockedValidations = sinon.stub(userHelper, 'validateAuthMethodsForListAlbums').returns(true),
+      mockedAlbums = sinon.stub(AlbumsPerUser, 'findAll').resolves(fakeAlbumsResponse);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/1/albums`)
+      .set(authHeader)
+      .then(res => {
+        expect(res.status).to.be.equal(200);
+        expect(mockedIsAdmin.calledOnce).to.be.true;
+        expect(mockedValidations.calledOnce).to.be.true;
+        expect(mockedAlbums.calledOnce).to.be.true;
+        expect(typeof res.body).to.be.equal('object');
+        expect(res.body.albums.length).to.not.be.equal(0);
+        mockedIsAdmin.restore();
+        mockedValidations.restore();
+        mockedAlbums.restore();
+        done();
+      });
+  });
+
+  it('test list all user albums when user is admin but is not the authenticated with a mocked response', done => {
+    const mockedIsAdmin = sinon.stub(userHelper, 'isAdmin').resolves(true),
+      mockedValidations = sinon.stub(userHelper, 'validateAuthMethodsForListAlbums').returns(true),
+      mockedAlbums = sinon.stub(AlbumsPerUser, 'findAll').resolves([]);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/2/albums`)
+      .set(authHeader)
+      .then(res => {
+        expect(res.status).to.be.equal(200);
+        expect(mockedIsAdmin.calledOnce).to.be.true;
+        expect(mockedValidations.calledOnce).to.be.true;
+        expect(mockedAlbums.calledOnce).to.be.true;
+        expect(typeof res.body).to.be.equal('object');
+        expect(res.body.albums.length).to.be.equal(0);
+        mockedIsAdmin.restore();
+        mockedValidations.restore();
+        mockedAlbums.restore();
+        done();
+      });
+  });
+
+  it('test list all user albums when user is not admin and either not the authenticated', done => {
+    const mockedIsAdmin = sinon.stub(userHelper, 'isAdmin').resolves(true),
+      mockedValidations = sinon.stub(userHelper, 'validateAuthMethodsForListAlbums').returns(false);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/2/albums`)
+      .set(authHeader)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(401);
+        expect(mockedIsAdmin.calledOnce).to.be.true;
+        expect(mockedValidations.calledOnce).to.be.true;
+        expect(res.message).to.be.equal(
+          'the authenticated user is not an admin and not the same as the request.'
+        );
+        expect(res.internal_code).to.be.equal('authentication_error');
+        mockedIsAdmin.restore();
+        mockedValidations.restore();
+        done();
+      });
+  });
+
+  it('test list all user albums when there is not any authenticated user', done => {
+    chai
+      .request(server)
+      .get(`${userEndpoint}/2/albums`)
+      .set(unAuthHeader)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(401);
+        expect(res.message).to.be.equal('user not authenticated');
+        expect(res.internal_code).to.be.equal('authentication_error');
         done();
       });
   });
