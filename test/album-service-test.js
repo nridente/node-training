@@ -22,4 +22,11 @@ describe('AlbumService', () => {
       done();
     });
   });
+
+  it('test get album photos service its ok', done => {
+    albumService.getAlbumPhotos(1).then(res => {
+      expect(typeof res).to.be.equal('object');
+      done();
+    });
+  });
 });

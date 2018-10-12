@@ -9,7 +9,8 @@ const chai = require('chai'),
   md5 = require('md5'),
   models = require('../app/models'),
   server = require('../app.js'),
-  userHelper = require('../app/controllers/helpers/userHelper.js');
+  userHelper = require('../app/controllers/helpers/userHelper.js'),
+  albumService = require('../app/services/albumService.js');
 
 const User = models.User,
   AlbumsPerUser = models.Album_User;
@@ -375,6 +376,81 @@ describe('UserModule', () => {
         expect(err.response.error).to.have.status(401);
         expect(res.message).to.be.equal('user not authenticated');
         expect(res.internal_code).to.be.equal('authentication_error');
+        done();
+      });
+  });
+
+  it('test list album photos with a mocked response', done => {
+    const fakePhotosResponse = [
+        {
+          albumId: 1,
+          id: 1,
+          title: 'accusamus beatae ad facilis cum similique qui sunt',
+          url: 'https://via.placeholder.com/600/92c952',
+          thumbnailUrl: 'https://via.placeholder.com/150/92c952'
+        },
+        {
+          albumId: 1,
+          id: 2,
+          title: 'reprehenderit est deserunt velit ipsam',
+          url: 'https://via.placeholder.com/600/771796',
+          thumbnailUrl: 'https://via.placeholder.com/150/771796'
+        },
+        {
+          albumId: 1,
+          id: 3,
+          title: 'officia porro iure quia iusto qui ipsa ut modi',
+          url: 'https://via.placeholder.com/600/24f355',
+          thumbnailUrl: 'https://via.placeholder.com/150/24f355'
+        }
+      ],
+      mockedService = sinon.stub(albumService, 'getAlbumPhotos').resolves(fakePhotosResponse),
+      mockedModel = sinon.stub(AlbumsPerUser, 'count').resolves(1);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/albums/1/photos`)
+      .set(authHeader)
+      .then(res => {
+        expect(mockedService.calledOnce).to.be.true;
+        expect(mockedModel.calledOnce).to.be.true;
+        expect(res.status).to.be.equal(200);
+        expect(typeof res.body).to.be.equal('object');
+        expect(res.body.photos.length).to.not.be.equal(0);
+        dictum.chai(res, 'list user album photos endpoint');
+        mockedService.restore();
+        mockedModel.restore();
+        done();
+      });
+  });
+
+  it('test list album fotos when the requested album is not purshased by the user', done => {
+    const albumId = 1,
+      mockedModel = sinon.stub(AlbumsPerUser, 'count').resolves(0);
+    chai
+      .request(server)
+      .get(`${userEndpoint}/albums/${albumId}/photos`)
+      .set(authHeader)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(mockedModel.calledOnce).to.be.true;
+        expect(err.response.error).to.have.status(404);
+        expect(res.internal_code).to.be.equal('album_not_found');
+        expect(res.message).to.be.equal(`the requested album ${albumId} is not purshased for the user`);
+        done();
+      });
+  });
+
+  it('test list album photos when there is not authenticated user', done => {
+    const albumId = 1;
+    chai
+      .request(server)
+      .get(`${userEndpoint}/albums/${albumId}/photos`)
+      .set(unAuthHeader)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(401);
+        expect(res.internal_code).to.be.equal('authentication_error');
+        expect(res.message).to.be.equal(`user not authenticated`);
         done();
       });
   });

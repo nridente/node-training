@@ -31,3 +31,17 @@ exports.getAlbum = albumId => {
       });
   });
 };
+
+exports.getAlbumPhotos = albumId => {
+  return new Promise((resolve, reject) => {
+    const path = `/albums/${albumId}/photos`;
+    axios
+      .get(host + path)
+      .then(res => {
+        resolve(res.data);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+};

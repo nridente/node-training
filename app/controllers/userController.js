@@ -7,7 +7,8 @@ const models = require('../models'),
   User = models.User,
   AlbumsPerUser = models.Album_User,
   jwtService = require('../services/jwt'),
-  userHelper = require('./helpers/userHelper');
+  userHelper = require('./helpers/userHelper'),
+  albumService = require('../services/albumService.js');
 
 exports.getAllUsers = (req, res, next) => {
   const rowsPerPage = 15,
@@ -100,6 +101,32 @@ exports.getUserAlbums = (req, res, next) => {
         next(
           error.authenticationError(`the authenticated user is not an admin and not the same as the request.`)
         );
+      }
+    })
+    .catch(err => {
+      logger.error(err);
+      next(err);
+    });
+};
+
+exports.getUserAlbumPhotos = (req, res, next) => {
+  const userId = req.decodedToken.sub,
+    albumId = req.params.album_id;
+  AlbumsPerUser.count({ where: { user_id: userId, album_id: albumId } })
+    .then(count => {
+      if (count) {
+        albumService
+          .getAlbumPhotos(albumId)
+          .then(response => {
+            res.send({ photos: response });
+          })
+          .catch(err => {
+            logger.info('there was an error while trying to call album service.');
+            next(error.externalServiceError('there was an error while trying to call album service.'));
+          });
+      } else {
+        logger.info(`the requested album ${albumId} is not purshased for the user`);
+        next(error.albumNotFound(`the requested album ${albumId} is not purshased for the user`));
       }
     })
     .catch(err => {

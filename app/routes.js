@@ -26,6 +26,7 @@ exports.init = app => {
   app.post('/users', [], userController.setUser);
   app.post('/users/sessions', [], userController.signIn);
   app.get('/users/:user_id/albums', [_isAuthenticated, _addToken], userController.getUserAlbums);
+  app.get('/users/albums/:album_id/photos', [_isAuthenticated, _addToken], userController.getUserAlbumPhotos);
   // admin users endpoints
   app.post('/admin/users', [_isAuthenticated], adminController.setAdmin);
   // album endpoints
