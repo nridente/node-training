@@ -19,7 +19,7 @@
   "content-type": "application/json",
   "content-length": 52
 }</pre><h5>Body</h5><pre>{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTM2MTI5NiwiZXhwIjoxNTQwNTcwODk2fQ.z9USFO5ky9WvfJCWKhcxCQeX79r_z9YSuY6oznscOsY"
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTM2ODU3OCwiZXhwIjoxNTQwNTc4MTc4fQ.uljvXpBT0CHUU39e8-lVc1n2qWfOo8GnQOWDwFRN_bE"
 }</pre></div></div></div></div><div class="panel panel-default"><div class="panel-heading" role="tab" id="heading-users-page-1-GET"><h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse-users-page-1-GET" href="#collapse-users-page-1-GET">GET /users/page/1</a></h4></div><div id="collapse-users-page-1-GET" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-users-page-1-GET"><div class="panel-body"><h4>Request Data</h4><div class="container"><h5>Headers</h5><pre>{
   "content-type": "application/json",
   "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU"
@@ -27,7 +27,7 @@
   "content-type": "application/json",
   "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU"
 }</pre><h5>Body</h5><pre>{
-  "users": "[{\"id\":1,\"name\":\"Valdomero\",\"last_name\":\"Lord\",\"email\":\"email@wolox.com.ar\",\"password\":\"5f4dcc3b5aa765d61d8327deb882cf99\",\"admin\":false,\"createdAt\":\"2018-10-12T16:21:36.328Z\",\"updatedAt\":\"2018-10-12T16:21:36.328Z\"}]",
+  "users": "[{\"id\":1,\"name\":\"Valdomero\",\"last_name\":\"Lord\",\"email\":\"email@wolox.com.ar\",\"password\":\"5f4dcc3b5aa765d61d8327deb882cf99\",\"admin\":false,\"createdAt\":\"2018-10-12T18:22:59.073Z\",\"updatedAt\":\"2018-10-12T18:22:59.073Z\"}]",
   "current_page": "1",
   "pages": 1
 }</pre></div></div></div></div><div class="panel panel-default"><div class="panel-heading" role="tab" id="heading-users-1-albums-GET"><h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse-users-1-albums-GET" href="#collapse-users-1-albums-GET">GET /users/1/albums</a></h4></div><div id="collapse-users-1-albums-GET" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-users-1-albums-GET"><div class="panel-body"><h4>Request Data</h4><div class="container"><h5>Headers</h5><pre>{
@@ -51,6 +51,36 @@
       "album_id": 2,
       "createdAt": "2018-10-11T19:27:46.122Z",
       "updatedAt": "2018-10-11T19:27:46.122Z"
+    }
+  ]
+}</pre></div></div></div></div><div class="panel panel-default"><div class="panel-heading" role="tab" id="heading-users-albums-1-photos-GET"><h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse-users-albums-1-photos-GET" href="#collapse-users-albums-1-photos-GET">GET /users/albums/1/photos</a></h4></div><div id="collapse-users-albums-1-photos-GET" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-users-albums-1-photos-GET"><div class="panel-body"><h4>Request Data</h4><div class="container"><h5>Headers</h5><pre>{
+  "content-type": "application/json",
+  "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU"
+}</pre></div></div><div class="panel-body"><h4>Response Data</h4><div class="container"><h5>Status: 200</h5><h5>Headers</h5><pre>{
+  "content-type": "application/json",
+  "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU"
+}</pre><h5>Body</h5><pre>{
+  "photos": [
+    {
+      "albumId": 1,
+      "id": 1,
+      "title": "accusamus beatae ad facilis cum similique qui sunt",
+      "url": "https://via.placeholder.com/600/92c952",
+      "thumbnailUrl": "https://via.placeholder.com/150/92c952"
+    },
+    {
+      "albumId": 1,
+      "id": 2,
+      "title": "reprehenderit est deserunt velit ipsam",
+      "url": "https://via.placeholder.com/600/771796",
+      "thumbnailUrl": "https://via.placeholder.com/150/771796"
+    },
+    {
+      "albumId": 1,
+      "id": 3,
+      "title": "officia porro iure quia iusto qui ipsa ut modi",
+      "url": "https://via.placeholder.com/600/24f355",
+      "thumbnailUrl": "https://via.placeholder.com/150/24f355"
     }
   ]
 }</pre></div></div></div></div></div></body></html>
