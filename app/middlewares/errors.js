@@ -15,7 +15,8 @@ const statusCodes = {
   [errors.INVALID_REQUESTED_PARAMS]: 400,
   [errors.AUTHENTICATION_ERROR]: 401,
   [errors.ALBUM_ALREADY_PURSHASED]: 400,
-  [errors.ALBUM_NOT_FOUND]: 404
+  [errors.ALBUM_NOT_FOUND]: 404,
+  [errors.EXTERNAL_SERVICE_ERROR]: 503
 };
 
 exports.handle = (error, req, res, next) => {
