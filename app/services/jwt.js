@@ -13,3 +13,7 @@ exports.createToken = function(user) {
   };
   return jwt.encode(payload, config.common.jwt.secret_token);
 };
+
+exports.decodeToken = token => {
+  return jwt.decode(token, config.common.jwt.secret_token);
+};
