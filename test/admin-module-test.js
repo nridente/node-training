@@ -2,14 +2,18 @@
 
 const chai = require('chai'),
   chaiHttp = require('chai-http'),
+  moment = require('moment'),
   expect = chai.expect,
   dictum = require('dictum.js'),
   logger = require('../app/logger'),
   md5 = require('md5'),
   models = require('../app/models'),
-  server = require('../app.js');
+  server = require('../app.js'),
+  jwt = require('jwt-simple'),
+  config = require('../config');
 
-const User = models.User;
+const User = models.User,
+  Token = models.Token;
 chai.use(chaiHttp);
 
 const setNewAdmin = adminData => {
@@ -23,11 +27,23 @@ const setNewUser = userData => {
 
 describe('AdminModule', () => {
   const adminEndpoint = '/admin/users',
+    tokenEndpoint = '/admin/token-settings',
     userData = {
       name: 'test-user',
       last_name: 'changing-admin',
       email: 'changing-admin@wolox.com.ar',
       password: md5('password')
+    },
+    bodyToken = {
+      sub: 1,
+      iat: moment().unix(),
+      exp: moment()
+        .add(1, 'hours')
+        .unix()
+    },
+    tokenData = {
+      time_exp: 5,
+      type_exp: 'days'
     };
   let unAuthHeader = '',
     authHeader = '',
@@ -37,7 +53,7 @@ describe('AdminModule', () => {
     unAuthHeader = { 'Content-Type': 'application/json' };
     authHeader = {
       'Content-Type': 'application/json',
-      'X-Access-Token': 'xample-token'
+      'X-Access-Token': jwt.encode(bodyToken, config.common.jwt.secret_token)
     };
     adminData = {
       email: 'admin@wolox.com.ar',
@@ -45,6 +61,13 @@ describe('AdminModule', () => {
       last_name: 'Total',
       password: md5('password')
     };
+    Token.create({
+      disable_at: null,
+      time_exp: 2,
+      type_exp: 'hours',
+      updatedAt: new Date(),
+      createdAt: new Date()
+    });
     done();
   });
 
@@ -167,6 +190,53 @@ describe('AdminModule', () => {
         expect(err.response.error).to.have.status(400);
         expect(res.internal_code).to.be.equal('invalid_password_length');
         expect(res.message).to.be.equal('password must have at least 8 characters length.');
+        done();
+      });
+  });
+
+  it('test change token settings when authenticated user is not an admin', done => {
+    setNewUser(userData);
+    chai
+      .request(server)
+      .post(tokenEndpoint)
+      .set(authHeader)
+      .send(tokenData)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(405);
+        expect(res.internal_code).to.be.equal('not_allowed');
+        expect(res.message).to.be.equal('refused conexion becouse not enough permissions');
+        done();
+      });
+  });
+
+  it('test change token settings when everything its ok', done => {
+    setNewAdmin(adminData);
+    chai
+      .request(server)
+      .post(tokenEndpoint)
+      .set(authHeader)
+      .send(tokenData)
+      .then(res => {
+        expect(res.status).to.be.equal(200);
+        expect(res.text).to.be.equal('token settings saved');
+        dictum.chai(res, 'update token settings endpoint');
+        done();
+      });
+  });
+
+  it.only('test change token settings when authenticated user is admin but has not token', done => {
+    setNewAdmin(adminData);
+    chai
+      .request(server)
+      .post(tokenEndpoint)
+      .set(unAuthHeader)
+      .send(tokenData)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(401);
+        expect(res.internal_code).to.be.equal('authentication_error');
+        expect(res.message).to.be.equal('user not authenticated');
         done();
       });
   });

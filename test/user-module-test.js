@@ -10,9 +10,13 @@ const chai = require('chai'),
   models = require('../app/models'),
   server = require('../app.js'),
   userHelper = require('../app/controllers/helpers/userHelper.js'),
-  albumService = require('../app/services/albumService.js');
+  albumService = require('../app/services/albumService.js'),
+  jwt = require('jwt-simple'),
+  config = require('../config'),
+  moment = require('moment');
 
 const User = models.User,
+  Token = models.Token,
   AlbumsPerUser = models.Album_User;
 chai.use(chaiHttp);
 
@@ -41,19 +45,35 @@ describe('UserModule', () => {
         createdAt: '2018-10-11T19:27:46.122Z',
         updatedAt: '2018-10-11T19:27:46.122Z'
       }
-    ];
+    ],
+    bodyToken = {
+      sub: 1,
+      iat: moment().unix(),
+      exp: moment()
+        .add(1, 'hours')
+        .unix()
+    },
+    expiredBodyToken = {
+      sub: 1,
+      iat: moment().unix(),
+      exp: moment()
+        .add(-1, 'hours')
+        .unix()
+    },
+    expiredTokenHeader = {
+      'Content-Type': 'application/json',
+      'X-Access-Token': jwt.encode(expiredBodyToken, config.common.jwt.secret_token)
+    };
   let unAuthHeader = '',
     authHeader = '',
     userData = '',
     loginData = '',
     page = 1;
-
   beforeEach('re-estructure data for every test', done => {
     unAuthHeader = { 'Content-Type': 'application/json' };
     authHeader = {
       'Content-Type': 'application/json',
-      'X-Access-Token':
-        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTUzOTI4NDExNiwiZXhwIjoxNTQwNDkzNzE2fQ.w2y17SdxJ9fYaFRGjf9eQwt4ZYjC37R99jAbKgRw3QU'
+      'X-Access-Token': jwt.encode(bodyToken, config.common.jwt.secret_token)
     };
     userData = {
       email: 'email@wolox.com.ar',
@@ -65,6 +85,13 @@ describe('UserModule', () => {
       email: 'email@wolox.com.ar',
       password: 'password'
     };
+    Token.create({
+      disable_at: null,
+      time_exp: 2,
+      type_exp: 'hours',
+      updatedAt: new Date(),
+      createdAt: new Date()
+    });
     done();
   });
 
@@ -156,6 +183,7 @@ describe('UserModule', () => {
       .then(res => {
         expect(res.status).to.be.equal(200);
         expect(res.body).to.contain.keys('token');
+        expect(res.body).to.contain.keys('duration');
         dictum.chai(res, 'sign in endpoint');
         done();
       });
@@ -241,6 +269,20 @@ describe('UserModule', () => {
         expect(text.current_page).to.be.equal('1');
         expect(text.pages).to.be.equal(1);
         dictum.chai(res, 'list users endpoint with pagination');
+        done();
+      });
+  });
+
+  it('test list all users when the token has expired', done => {
+    chai
+      .request(server)
+      .get(listUsersEndpoint + page)
+      .set(expiredTokenHeader)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(401);
+        expect(res.internal_code).to.be.equal('authentication_error');
+        expect(res.message).to.be.equal('expired session time');
         done();
       });
   });
@@ -353,13 +395,13 @@ describe('UserModule', () => {
       .set(authHeader)
       .catch(err => {
         const res = JSON.parse(err.response.error.text);
-        expect(err.response.error).to.have.status(401);
+        expect(err.response.error).to.have.status(405);
         expect(mockedIsAdmin.calledOnce).to.be.true;
         expect(mockedValidations.calledOnce).to.be.true;
         expect(res.message).to.be.equal(
           'the authenticated user is not an admin and not the same as the request.'
         );
-        expect(res.internal_code).to.be.equal('authentication_error');
+        expect(res.internal_code).to.be.equal('not_allowed');
         mockedIsAdmin.restore();
         mockedValidations.restore();
         done();

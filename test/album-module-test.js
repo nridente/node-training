@@ -10,7 +10,10 @@ const chai = require('chai'),
   albumService = require('../app/services/albumService.js'),
   albumController = require('../app/controllers/albumController.js'),
   models = require('../app/models'),
-  AlbumPerUser = models.Album_User;
+  AlbumPerUser = models.Album_User,
+  moment = require('moment'),
+  jwt = require('jwt-simple'),
+  config = require('../config');
 
 chai.use(chaiHttp);
 
@@ -26,9 +29,16 @@ describe('AlbumModule', () => {
     albumId = 1,
     getAlbumEndpoint = `/albums/${albumId}`,
     unAuthHeader = { 'Content-Type': 'application/json' },
+    bodyToken = {
+      sub: 1,
+      iat: moment().unix(),
+      exp: moment()
+        .add(1, 'hours')
+        .unix()
+    },
     authHeader = {
       'Content-Type': 'application/json',
-      'X-Access-Token': 'xample-token'
+      'X-Access-Token': jwt.encode(bodyToken, config.common.jwt.secret_token)
     },
     expectedResponseForList = [
       {
