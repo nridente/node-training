@@ -12,6 +12,7 @@ exports.AUTHENTICATION_ERROR = 'authentication_error';
 exports.ALBUM_ALREADY_PURSHASED = 'album_already_purshased';
 exports.ALBUM_NOT_FOUND = 'album_not_found';
 exports.EXTERNAL_SERVICE_ERROR = 'external_service_error';
+exports.NOT_ALLOWED = 'not_allowed';
 exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 exports.invalidDomainEmail = message => internalError(message, exports.INVALID_DOMAIN_EMAIL);
 exports.invalidEmail = message => internalError(message, exports.INVALID_EMAIL);
@@ -21,3 +22,4 @@ exports.authenticationError = message => internalError(message, exports.AUTHENTI
 exports.albumAlreadyPurshased = message => internalError(message, exports.ALBUM_ALREADY_PURSHASED);
 exports.albumNotFound = message => internalError(message, exports.ALBUM_NOT_FOUND);
 exports.externalServiceError = message => internalError(message, exports.EXTERNAL_SERVICE_ERROR);
+exports.notAllowed = message => internalError(message, exports.NOT_ALLOWED);
