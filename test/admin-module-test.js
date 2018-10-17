@@ -225,7 +225,7 @@ describe('AdminModule', () => {
       });
   });
 
-  it.only('test change token settings when authenticated user is admin but has not token', done => {
+  it('test change token settings when authenticated user is admin but has not token', done => {
     setNewAdmin(adminData);
     chai
       .request(server)
