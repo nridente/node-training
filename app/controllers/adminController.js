@@ -5,6 +5,7 @@ const models = require('../models'),
   logger = require('../logger'),
   md5 = require('md5'),
   User = models.User,
+  Token = models.Token,
   jwtService = require('../services/jwt'),
   userHelper = require('./helpers/userHelper');
 
@@ -54,4 +55,33 @@ exports.setAdmin = (req, res, next) => {
       }
     });
   }
+};
+
+exports.setTokenTime = (req, res, next) => {
+  const body = req.body;
+  userHelper.isAdmin(req.decodedToken.sub, User).then(admin => {
+    logger.info(admin);
+    if (!admin) {
+      logger.info(`conexion refued becouse the user is not an administrator`);
+      next(error.notAllowed(`refused conexion becouse not enough permissions`));
+    }
+    Token.findOne()
+      .then(token => {
+        token.time_exp = body.time_exp;
+        token.type_exp = body.type_exp;
+        token
+          .save(token)
+          .then(() => {
+            res.send('token settings saved');
+          })
+          .catch(err => {
+            logger.error('there was an error trying to modify token settings');
+            next(err);
+          });
+      })
+      .catch(err => {
+        logger.info('there was an error retriving the token settings');
+        next(err);
+      });
+  });
 };

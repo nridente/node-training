@@ -27,11 +27,11 @@ module.exports = {
         type: DataType.STRING,
         allowNull: false
       },
-      created_at: {
+      createdAt: {
         allowNull: false,
         type: DataType.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: DataType.DATE
       }

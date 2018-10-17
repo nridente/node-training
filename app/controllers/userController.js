@@ -69,8 +69,10 @@ exports.signIn = (req, res, next) => {
     User.findOne({ where: { email: body.email, password: md5(body.password) } })
       .then(user => {
         if (user) {
-          logger.info(`user ${body.email} signed in successfull.`);
-          return res.send({ token: jwtService.createToken(user) });
+          jwtService.createToken(user).then(response => {
+            logger.info(`user ${body.email} signed in successfull.`);
+            return res.send(response);
+          });
         } else {
           logger.info(`either email or password are wrong.`);
           next(error.authenticationError(`either email or password are wrong.`));
@@ -98,9 +100,7 @@ exports.getUserAlbums = (req, res, next) => {
           });
       } else {
         logger.info(`the authenticated user is not an admin and not the same as the request.`);
-        next(
-          error.authenticationError(`the authenticated user is not an admin and not the same as the request.`)
-        );
+        next(error.notAllowed(`the authenticated user is not an admin and not the same as the request.`));
       }
     })
     .catch(err => {
