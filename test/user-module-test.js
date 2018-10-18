@@ -48,16 +48,18 @@ describe('UserModule', () => {
     ],
     bodyToken = {
       sub: 1,
-      iat: moment().unix(),
-      exp: moment()
+      iat: moment()
         .add(1, 'hours')
+        .unix(),
+      exp: moment()
+        .add(5, 'hours')
         .unix()
     },
     expiredBodyToken = {
       sub: 1,
       iat: moment().unix(),
       exp: moment()
-        .add(-1, 'hours')
+        .add(-6, 'hours')
         .unix()
     },
     expiredTokenHeader = {
@@ -92,10 +94,12 @@ describe('UserModule', () => {
       updatedAt: new Date(),
       createdAt: new Date()
     });
+    setNewUser(userData);
     done();
   });
 
   it('test create user when success', done => {
+    userData.email = 'email-2@wolox.com.ar';
     chai
       .request(server)
       .post(userEndpoint)
@@ -110,7 +114,6 @@ describe('UserModule', () => {
   });
 
   it('test create user when email is in use', done => {
-    setNewUser(userData);
     chai
       .request(server)
       .post(userEndpoint)

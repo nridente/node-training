@@ -11,6 +11,8 @@ const chai = require('chai'),
   albumController = require('../app/controllers/albumController.js'),
   models = require('../app/models'),
   AlbumPerUser = models.Album_User,
+  User = models.User,
+  md5 = require('md5'),
   moment = require('moment'),
   jwt = require('jwt-simple'),
   config = require('../config');
@@ -24,6 +26,10 @@ const _insertAlbumPerUser = () => {
   });
 };
 
+const setNewUser = userData => {
+  User.create(userData);
+};
+
 describe('AlbumModule', () => {
   const ListAlbumEndpoint = '/albums',
     albumId = 1,
@@ -31,10 +37,18 @@ describe('AlbumModule', () => {
     unAuthHeader = { 'Content-Type': 'application/json' },
     bodyToken = {
       sub: 1,
-      iat: moment().unix(),
-      exp: moment()
+      iat: moment()
         .add(1, 'hours')
+        .unix(),
+      exp: moment()
+        .add(5, 'hours')
         .unix()
+    },
+    userData = {
+      name: 'test-user',
+      last_name: 'changing-admin',
+      email: 'changing-admin@wolox.com.ar',
+      password: md5('password')
     },
     authHeader = {
       'Content-Type': 'application/json',
@@ -57,6 +71,11 @@ describe('AlbumModule', () => {
       id: 1,
       title: 'quidem molestiae enim'
     };
+
+  beforeEach('populate information and models', done => {
+    setNewUser(userData);
+    done();
+  });
 
   it('test list all albums when success with mocked service response', done => {
     const mockedService = sinon.stub(albumService, 'getAllAlbums').resolves(expectedResponseForList);

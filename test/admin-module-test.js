@@ -34,23 +34,26 @@ describe('AdminModule', () => {
       email: 'changing-admin@wolox.com.ar',
       password: md5('password')
     },
-    bodyToken = {
-      sub: 1,
-      iat: moment().unix(),
-      exp: moment()
-        .add(1, 'hours')
-        .unix()
-    },
     tokenData = {
       time_exp: 5,
       type_exp: 'days'
     };
   let unAuthHeader = '',
     authHeader = '',
-    adminData = '';
+    adminData = '',
+    bodyToken = '';
 
   beforeEach('re-estructure data for every test', done => {
     unAuthHeader = { 'Content-Type': 'application/json' };
+    bodyToken = {
+      sub: 1,
+      iat: moment()
+        .add(2, 'hours')
+        .unix(),
+      exp: moment()
+        .add(5, 'hours')
+        .unix()
+    };
     authHeader = {
       'Content-Type': 'application/json',
       'X-Access-Token': jwt.encode(bodyToken, config.common.jwt.secret_token)
@@ -68,6 +71,7 @@ describe('AdminModule', () => {
       updatedAt: new Date(),
       createdAt: new Date()
     });
+    setNewUser(userData);
     done();
   });
 
@@ -86,7 +90,6 @@ describe('AdminModule', () => {
   });
 
   it('set user as admin when the user already exists but is not an admin', done => {
-    setNewUser(userData);
     chai
       .request(server)
       .post(adminEndpoint)
@@ -194,23 +197,9 @@ describe('AdminModule', () => {
       });
   });
 
-  it('test change token settings when authenticated user is not an admin', done => {
-    setNewUser(userData);
-    chai
-      .request(server)
-      .post(tokenEndpoint)
-      .set(authHeader)
-      .send(tokenData)
-      .catch(err => {
-        const res = JSON.parse(err.response.error.text);
-        expect(err.response.error).to.have.status(405);
-        expect(res.internal_code).to.be.equal('not_allowed');
-        expect(res.message).to.be.equal('refused conexion becouse not enough permissions');
-        done();
-      });
-  });
-
   it('test change token settings when everything its ok', done => {
+    bodyToken.sub = 2;
+    authHeader['X-Access-Token'] = jwt.encode(bodyToken, config.common.jwt.secret_token);
     setNewAdmin(adminData);
     chai
       .request(server)
@@ -225,8 +214,22 @@ describe('AdminModule', () => {
       });
   });
 
+  it('test change token settings when authenticated user is not an admin', done => {
+    chai
+      .request(server)
+      .post(tokenEndpoint)
+      .set(authHeader)
+      .send(tokenData)
+      .catch(err => {
+        const res = JSON.parse(err.response.error.text);
+        expect(err.response.error).to.have.status(405);
+        expect(res.internal_code).to.be.equal('not_allowed');
+        expect(res.message).to.be.equal('refused conexion becouse not enough permissions');
+        done();
+      });
+  });
+
   it('test change token settings when authenticated user is admin but has not token', done => {
-    setNewAdmin(adminData);
     chai
       .request(server)
       .post(tokenEndpoint)
