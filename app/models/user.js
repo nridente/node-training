@@ -30,7 +30,12 @@ module.exports = function(sequelize, DataType) {
       },
       admin: {
         type: DataType.BOOLEAN,
-        default: 0
+        defaultValue: false
+      },
+      last_invalidated_sessions_at: {
+        type: DataType.DATE,
+        allowNull: true,
+        defaultValue: DataType.NOW
       }
     },
     {
