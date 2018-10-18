@@ -29,6 +29,7 @@ describe('UserModule', () => {
   const userEndpoint = '/users',
     userId = 1,
     loginEndpoint = `${userEndpoint}/sessions`,
+    invalidateEndpoint = `${userEndpoint}/sessions/invalidate-all`,
     listUsersEndpoint = `${userEndpoint}/page/`,
     fakeAlbumsResponse = [
       {
@@ -46,15 +47,6 @@ describe('UserModule', () => {
         updatedAt: '2018-10-11T19:27:46.122Z'
       }
     ],
-    bodyToken = {
-      sub: 1,
-      iat: moment()
-        .add(1, 'hours')
-        .unix(),
-      exp: moment()
-        .add(5, 'hours')
-        .unix()
-    },
     expiredBodyToken = {
       sub: 1,
       iat: moment().unix(),
@@ -70,12 +62,22 @@ describe('UserModule', () => {
     authHeader = '',
     userData = '',
     loginData = '',
+    bodyToken = '',
     page = 1;
   beforeEach('re-estructure data for every test', done => {
     unAuthHeader = { 'Content-Type': 'application/json' };
     authHeader = {
       'Content-Type': 'application/json',
       'X-Access-Token': jwt.encode(bodyToken, config.common.jwt.secret_token)
+    };
+    bodyToken = {
+      sub: 1,
+      iat: moment()
+        .add(1, 'hours')
+        .unix(),
+      exp: moment()
+        .add(5, 'hours')
+        .unix()
     };
     userData = {
       email: 'email@wolox.com.ar',
@@ -498,5 +500,44 @@ describe('UserModule', () => {
         expect(res.message).to.be.equal(`user not authenticated`);
         done();
       });
+  });
+
+  it('test invalidate all user sessions when ok', done => {
+    chai
+      .request(server)
+      .post(invalidateEndpoint)
+      .set(authHeader)
+      .send()
+      .then(res => {
+        expect(res.status).to.be.equal(200);
+        expect(res.text).to.be.equal(
+          `all sessions for user ${userData.last_name} ${userData.name} has been disabled`
+        );
+        dictum.chai(res, 'invalidate all user session endpoint');
+        done();
+      });
+  });
+
+  it('test list all user while session has be disabled', done => {
+    userData.email = 'email-22@wolox.com.ar';
+    userData.last_invalidated_sessions_at = moment();
+    User.create(userData).then(user => {
+      bodyToken.sub = user.id;
+      bodyToken.iat = moment()
+        .add(-1, 'hours')
+        .unix();
+      authHeader['X-Access-Token'] = jwt.encode(bodyToken, config.common.jwt.secret_token);
+      chai
+        .request(server)
+        .get(listUsersEndpoint + page)
+        .set(authHeader)
+        .catch(err => {
+          const res = JSON.parse(err.response.error.text);
+          expect(err.response.error).to.have.status(405);
+          expect(res.internal_code).to.be.equal('not_allowed');
+          expect(res.message).to.be.equal('token session has been disabled');
+          done();
+        });
+    });
   });
 });
