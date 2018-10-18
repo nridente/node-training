@@ -4,6 +4,7 @@ const models = require('../models'),
   error = require('../errors'),
   logger = require('../logger'),
   md5 = require('md5'),
+  moment = require('moment'),
   User = models.User,
   AlbumsPerUser = models.Album_User,
   jwtService = require('../services/jwt'),
@@ -131,6 +132,27 @@ exports.getUserAlbumPhotos = (req, res, next) => {
     })
     .catch(err => {
       logger.error(err);
+      next(err);
+    });
+};
+
+exports.disableAllSessions = (req, res, next) => {
+  const userId = req.decodedToken.sub;
+  User.findOne({ where: { id: userId } })
+    .then(user => {
+      user.last_invalidated_sessions_at = moment();
+      user
+        .save()
+        .then(() => {
+          res.send(`all sessions for user ${user.last_name} ${user.name} has been disabled`);
+        })
+        .catch(err => {
+          logger.error('an error occurred while trying to invalidate all user sessions');
+          next(err);
+        });
+    })
+    .catch(err => {
+      logger.error('an error occurred while trying to retriave the user information at disableAllSession');
       next(err);
     });
 };
